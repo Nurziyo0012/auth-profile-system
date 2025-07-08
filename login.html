@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - SmartCaptcha</title>
+    <link rel="stylesheet" href="style.css"> 
+</head>
+<body>
+    <h2>🔐 Kirish</h2>
+
+    <form action="login.php" method="POST">
+        <label>Email yoki Telefon:</label><br>
+        <input type="text" name="login" required><br><br>
+
+        <label>Parol:</label><br>
+        <input type="password" name="password" required><br><br>
+
+        <!-- 🛡️ SmartCaptcha joyi -->
+        <div id="smart-captcha-container"></div>
+        <input type="hidden" name="smart-token" id="smart-token">
+
+        <script src="https://smartcaptcha.yandexcloud.net/captcha.js" defer></script>
+        <script>
+            window.smartCaptcha = {
+                sitekey: 'ysc1_iI43pcy1IDdaVdDVjwetzLafbh2ajXfYS2hVxmKg1369e909', // Faqat o‘z kalitingni yoz
+                callback: function(token) {
+                    document.getElementById('smart-token').value = token;
+                }
+            };
+        </script>
+
+        <br><button type="submit">Kirish</button>
+    </form>
+</body>
+</html>

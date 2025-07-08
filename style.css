@@ -1,0 +1,92 @@
+/* 📦 Umumiy sahifa uchun */
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f0f4f8;
+    margin: 0;
+    padding: 40px;
+    display: flex;
+    justify-content: center;
+}
+
+/* 🧊 Forma konteyneri */
+.form-box {
+    background-color: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 400px;
+}
+
+/* ✏️ Inputlar */
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+/* 🟦 Tugmalar */
+button {
+    width: 100%;
+    padding: 10px;
+    background-color: #0077cc;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #005fa3;
+}
+
+/* 🧯 Xatolik va muvaffaqiyat xabarlari */
+.success {
+    background-color: #e6ffed;
+    border-left: 5px solid #2ecc71;
+    padding: 10px;
+    color: #2e7d32;
+    margin-bottom: 15px;
+}
+
+.error {
+    background-color: #ffecec;
+    border-left: 5px solid #e74c3c;
+    padding: 10px;
+    color: #c0392b;
+    margin-bottom: 10px;
+}
+/* 🌐 Navbar */
+.navbar {
+    background-color: #0077cc;
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 0 0 6px 6px;
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+.navbar .nav-links a {
+    color: white;
+    text-decoration: none;
+    margin-left: 15px;
+    padding: 6px 10px;
+    border-radius: 4px;
+    transition: background 0.3s ease;
+}
+
+.navbar .nav-links a:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.navbar .nav-brand {
+    font-weight: bold;
+}

@@ -1,0 +1,9 @@
+<form action="register.php" method="POST">
+  <input type="text" name="name" placeholder="Name"><br>
+  <input type="text" name="phone" placeholder="Phone"><br>
+  <input type="email" name="email" placeholder="Email"><br>
+  <input type="password" name="password" placeholder="Password"><br>
+  <input type="password" name="confirm" placeholder="Confirm password"><br>
+  <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+  <button type="submit">Submit</button>
+</form>
