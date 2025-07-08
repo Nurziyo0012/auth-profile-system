@@ -1,8 +1,18 @@
-<?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-?>
+
+
+<nav>
+    <ul>
+        <li><a href="index.php">🏠 Bosh sahifa</a></li>
+
+        <?php if (isset($_SESSION['user_id'])): ?>
+            <li><a href="profile.php">👤 Profil</a></li>
+            <li><a href="logout.php">🚪 Chiqish</a></li>
+        <?php else: ?>
+            <li><a href="login.php">🔐 Kirish</a></li>
+            <li><a href="register.php">📝 Ro‘yxatdan o‘tish</a></li>
+        <?php endif; ?>
+    </ul>
+</nav>
 
 <nav class="navbar">
     <div class="nav-brand">📘 HH Project</div>
