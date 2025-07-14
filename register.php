@@ -1,79 +1,105 @@
-<!DOCTYPE html>
-<html lang="uz">
-<head>
-    <meta charset="UTF-8">
-    <title>Ro‘yxatdan o‘tish</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="form-box">
-        <h2>Ro‘yxatdan o‘tish</h2>
+
 <?php
-include 'navbar.php';
-session_start();
-$conn = new mysqli("localhost", "root", "", "hhproject");
-$conn->set_charset("utf8mb4");
+require_once 'db.php';
 
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
-
+$success = '';
 $errors = [];
-$success = "";
+$name = $phone = $email = '';
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $name = trim($_POST['name'] ?? '');
-    $phone = trim($_POST['phone'] ?? '');
-    $email = trim($_POST['email'] ?? '');
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // ✂️ Ma’lumotlarni olish va tozalash
+    $name     = trim($_POST['name'] ?? '');
+    $phone    = trim($_POST['phone'] ?? '');
+    $email    = filter_var(trim($_POST['email'] ?? ''), FILTER_SANITIZE_EMAIL);
     $password = $_POST['password'] ?? '';
-    $confirm = $_POST['confirm'] ?? '';
+    $confirm  = $_POST['confirm'] ?? '';
 
+    // ✅ Validatsiya
     if (!$name || !$phone || !$email || !$password || !$confirm) {
-        $errors[] = "Barcha maydonlarni to‘ldiring.";
+        $errors[] = "❗ Все поля обязательны.";
     }
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $errors[] = "Email formati noto‘g‘ri.";
+        $errors[] = "📧 Неверный формат почты.";
     }
 
-    if (!preg_match('/^\+?[0-9]{10,15}$/', $phone)) {
-        $errors[] = "Telefon raqami noto‘g‘ri formatda.";
-    }
-
-    if (strlen($password) < 6) {
-        $errors[] = "Parol kamida 6 ta belgidan iborat bo‘lishi kerak.";
+    if (!preg_match('/^\+?\d{10,15}$/', $phone)) {
+        $errors[] = "📱 Телефон должен быть от 10 до 15 цифр.";
     }
 
     if ($password !== $confirm) {
-        $errors[] = "Parollar mos emas.";
+        $errors[] = "🔑 Пароли не совпадают.";
+    } elseif (strlen($password) < 6) {
+        $errors[] = "🛡️ Пароль слишком короткий (мин. 6 символов).";
     }
 
-    // 🔍 Dublikat tekshiruvi
-    if (empty($errors)) {
-        $check = $conn->prepare("SELECT id FROM users WHERE phone = ? OR email = ?");
-        $check->bind_param("ss", $phone, $email);
-        $check->execute();
-        $check->store_result();
-
-        if ($check->num_rows > 0) {
-            $errors[] = "Bu telefon yoki email allaqachon ro‘yxatdan o‘tgan.";
-        }
-
-        $check->close();
+    // 🔎 Tekshirish: email/phone unikalmi?
+    $stmt = $conn->prepare("SELECT id FROM users WHERE email = ? OR phone = ?");
+    $stmt->bind_param("ss", $email, $phone);
+    $stmt->execute();
+    $stmt->store_result();
+    if ($stmt->num_rows > 0) {
+        $errors[] = "🚫 Такой телефон или почта уже зарегистрированы.";
     }
+    $stmt->close();
 
-    // 💾 Baza qo‘shish
-    if (empty($errors)) {
-        $hashed = password_hash($password, PASSWORD_DEFAULT);
+    // 🗂️ Baza yozuvi
+    if (!$errors) {
+        $hash = password_hash($password, PASSWORD_DEFAULT);
         $stmt = $conn->prepare("INSERT INTO users (name, phone, email, password) VALUES (?, ?, ?, ?)");
-        $stmt->bind_param("ssss", $name, $phone, $email, $hashed);
-
+        $stmt->bind_param("ssss", $name, $phone, $email, $hash);
         if ($stmt->execute()) {
-            $success = "🎉 Ro‘yxatdan muvaffaqiyatli o‘tdingiz!";
+            $success = "✅ Регистрация прошла успешно! <a href='login.html'>Войти</a>";
         } else {
-            $errors[] = "❌ Ma’lumotni saqlashda xatolik yuz berdi.";
+            $errors[] = "⚠️ Ошибка при сохранении в базу.";
         }
 
         $stmt->close();
     }
 }
 ?>
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>📝 Регистрация</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<?php include 'navbar.php'; ?>
+
+<div class="form-box">
+  <h2>📝 Регистрация</h2>
+
+  <?php foreach ($errors as $e): ?>
+    <div class="error"><?= htmlspecialchars($e) ?></div>
+  <?php endforeach; ?>
+
+  <?php if ($success): ?>
+    <div class="success"><?= $success ?></div>
+  <?php endif; ?>
+
+  <form method="POST">
+    <label for="name">Имя:</label>
+    <input type="text" name="name" id="name" value="<?= htmlspecialchars($name) ?>" required>
+
+    <label for="phone">Телефон:</label>
+    <input type="text" name="phone" id="phone" value="<?= htmlspecialchars($phone) ?>" required>
+
+    <label for="email">Почта:</label>
+    <input type="email" name="email" id="email" value="<?= htmlspecialchars($email) ?>" required>
+
+    <label for="password">Пароль:</label>
+    <input type="password" name="password" id="password" required>
+
+    <label for="confirm">Повтор пароля:</label>
+    <input type="password" name="confirm" id="confirm" required>
+
+    <button type="submit">Зарегистрироваться</button>
+  </form>
+</div>
+
+</body>
+</html>

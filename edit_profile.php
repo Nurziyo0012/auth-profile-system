@@ -1,6 +1,8 @@
 <?php
 session_start();
 include 'navbar.php';
+require_once 'db.php';
+require_once 'auth.php';
 
 $conn = new mysqli("localhost", "root", "", "hhproject");
 $conn->set_charset("utf8mb4");
@@ -31,22 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $newPass = $_POST['password'] ?? '';
     $confirmPass = $_POST['confirm'] ?? '';
 
-    // 🖼 Avatar yuklash
-    if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === 0) {
-        $allowed = ['image/jpeg', 'image/png', 'image/jpg'];
-        if (in_array($_FILES['avatar']['type'], $allowed)) {
-            $ext = pathinfo($_FILES['avatar']['name'], PATHINFO_EXTENSION);
-            $newAvatar = uniqid("avatar_", true) . '.' . $ext;
-            if (!is_dir("uploads")) {
-                mkdir("uploads");
-            }
-            move_uploaded_file($_FILES['avatar']['tmp_name'], "uploads/" . $newAvatar);
-            $avatar = $newAvatar;
-        } else {
-            $errors[] = "Faqat JPEG yoki PNG formatdagi rasm yuklang.";
-        }
-    }
-
+   
     // 📋 Validatsiyalar
     if ($newEmail == '') {
         $errors[] = 'Email kiritilmadi';
@@ -118,8 +105,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php foreach ($errors as $e): ?>
         <div class="error"><?= htmlspecialchars($e) ?></div>
     <?php endforeach; ?>
-
-🦋, [7/8/2025 2:17 PM]
 <?php if (!empty($success)): ?>
         <div class="success"><?= $success ?></div>
     <?php endif; ?>

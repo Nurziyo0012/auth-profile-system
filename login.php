@@ -3,60 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="style.css">
+
+    <div class="form-box">
+  <h2>🔐 Вход</h2>
+
+<?php if (!empty ($error)): ?>
+  <div class="error">
+    <?php echo htmlspecialchars($error); ?>
+</div>
+<?php endif; ?>
+
+  <form method="POST" action="login.php">
+    <input type="text" name="identifier" placeholder="Телефон или Email" required>
+    <input type="password" name="password" placeholder="Пароль" required>
+    <button type="submit">Войти</button>
+  </form>
+</div>
+
 </head>
 <body>
 <?php
-include 'navbar.php';
+if(session_status() == PHP_SESSION_NONE){
 session_start();
-$conn = new mysqli("localhost", "root", "", "hhproject");
-
-
-// Foydalanuvchidan ma’lumot olish
-$login = trim($_POST['login'] ?? '');
-$password = $_POST['password'] ?? '';
-$token = $_POST['smart-token'] ?? '';
-
-// 🔐 SmartCaptcha tokenni tekshirish
-$secret = 'ysc2_iI43pcy1IDdaVdDVjwetIZyzTU84Y4iUmEL2GVb7d74c1bd0'; // <<< bu yerga secret key’ni yozing
-
-$ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, "https://smartcaptcha.yandexcloud.net/validate");
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-    "secret" => $secret,
-    "token" => $token,
-    "ip" => $_SERVER['REMOTE_ADDR']
-]));
-curl_setopt($ch, CURLOPT_HTTPHEADER, ["Content-Type: application/json"]);
-
-$response = curl_exec($ch);
-curl_close($ch);
-
-$result = json_decode($response, true);
-
-if (!$result['status']) {
-    die("❌ CAPTCHA tekshiruvdan o‘ta olmadi.");
 }
+require_once 'db.php';
+include 'navbar.php';
 
-// 👤 Email yoki telefon orqali qidirish
-$stmt = $conn->prepare("SELECT id, name, password FROM users WHERE email = ? OR phone = ?");
-$stmt->bind_param("ss", $login, $login);
-$stmt->execute();
-$stmt->store_result();
+$identifier = '';
+$error = '';
 
-if ($stmt->num_rows === 1) {
-    $stmt->bind_result($id, $name, $hashedPassword);
-    $stmt->fetch();
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $identifier = trim($_POST['identifier'] ?? '');
+    $password   = $_POST['password'] ?? '';
 
-    if (password_verify($password, $hashedPassword)) {
-        $_SESSION['user_id'] = $id;
-        $_SESSION['user_name'] = $name;
-        header("Location: login.php");
-        exit;
+    if (!$identifier || !$password) {
+        $error = "Введите телефон/почту и пароль.";
     } else {
-        echo "❌ Noto‘g‘ri parol.";
+        $stmt = $conn->prepare("SELECT id, name, phone, email, password FROM users WHERE email = ? OR phone = ?");
+        $stmt->bind_param("ss", $identifier, $identifier);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($user = $result->fetch_assoc()) {
+            if (password_verify($password, $user['password'])) {
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['user_name'] = $user['name'];
+                header("Location: profile.php");
+                exit;
+            } else {
+                $error = "❌ Неверный пароль.";
+            }
+        } else {
+            $error = "❌ Пользователь не найден.";
+        }
+        $stmt->close();
     }
-} else {
-    echo "❌ Foydalanuvchi topilmadi.";
 }
 ?>

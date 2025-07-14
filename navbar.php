@@ -1,28 +1,38 @@
+<?php
+if (session_status() == PHP_SESSION_NONE){
+    session_start();
+}?>
+<style>
+  nav {
+    background: #6c63ff;
+    color: white;
+    padding: 12px 20px;
+    font-family: 'Segoe UI', sans-serif;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+  .navbar-container {
+    max-width: 960px;
+    margin: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .navbar-left a {
+    font-weight: bold;
+    font-size: 18px;
+    color: white;
+    text-decoration: none;
+  }
+  .navbar-right a {
+    color: white;
+    margin-left: 20px;
+    text-decoration: none;
+    font-size: 15px;
+  }
+  .navbar-right span {
+    font-size: 15px;
+    font-weight: 500;
+  }
+</style>
 
-
-<nav>
-    <ul>
-        <li><a href="index.php">🏠 Bosh sahifa</a></li>
-
-        <?php if (isset($_SESSION['user_id'])): ?>
-            <li><a href="profile.php">👤 Profil</a></li>
-            <li><a href="logout.php">🚪 Chiqish</a></li>
-        <?php else: ?>
-            <li><a href="login.php">🔐 Kirish</a></li>
-            <li><a href="register.php">📝 Ro‘yxatdan o‘tish</a></li>
-        <?php endif; ?>
-    </ul>
-</nav>
-
-<nav class="navbar">
-    <div class="nav-brand">📘 HH Project</div>
-    <div class="nav-links">
-        <?php if (isset($_SESSION['user_id'])): ?>
-            <a href="profile.php">👤 Profil</a>
-            <a href="logout.php">🚪 Chiqish</a>
-        <?php else: ?>
-            <a href="login.php">🔐 Kirish</a>
-            <a href="register.php">📝 Ro‘yxatdan o‘tish</a>
-        <?php endif; ?>
-    </div>
-</nav>
